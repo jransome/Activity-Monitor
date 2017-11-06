@@ -1,0 +1,58 @@
+﻿ASSUMPTIONS
+
+This application monitors program usage.
+
+ - Each 'record' in tracked programs is basically an exe file identified by name.
+ - This app should be able to handle concurrent instances of the same exe however.
+
+
+
+
+ Obsolete code:
+
+ The old way of scraping programs:
+
+        /// <summary>
+        /// Returns a snapshot of running processes as an enumerable collection of programs
+        /// </summary>
+        public IEnumerable<Program> GetRunningPrograms()
+        {
+            // We have to join the ouptut of a WMI query for processes with the results of Process.GetProcesses()
+            // WMI query provides the process ID and path to the executable.
+            // GetProceses() provides a process ID and MainWindowTitle, but doesn't allow doesn't allow access the
+            // filepath of 64bit processes from as this is a 32bit app(though we could make this app 64bit...when I tried this I ran into security / permissions barriers)
+            // Therefore we have to join both sources on process ID to get the full picture of running processes.
+            // TODO: add description using FileVersionInfo.GetVersionInfo()
+
+            string wmiQueryString = "SELECT ProcessId, Name, ExecutablePath, CreationDate, Description FROM Win32_Process";
+            ManagementObjectCollection wmiResults = new ManagementObjectSearcher(wmiQueryString).Get();
+
+            IEnumerable<Program> runningProcesses = from process in Process.GetProcesses()
+                                                    join managementObject in wmiResults.Cast<ManagementObject>() on process.Id equals (int)(uint)managementObject["ProcessId"]
+                                                    select new Program((string)managementObject["Name"],
+                                                                      process.MainWindowTitle,
+                                                                      (string)managementObject["ExecutablePath"],
+                                                                      (uint)process.Id,
+                                                                      ManagementDateTimeConverter.ToDateTime((string)managementObject["CreationDate"]));
+
+            return runningProcesses;
+        }
+
+
+
+		/// <summary>
+        /// Handles events raised by the process start and stop watchers, determines whether it was a start or stop trace and
+        /// raises the ProcessWasStartedStopped event.
+        /// </summary>
+        private void ProcessStartStopHandler(object sender, EventArrivedEventArgs e)
+        {
+            ManagementBaseObject eventDetails = e.NewEvent;
+            string classQueried = eventDetails.SystemProperties["__Class"].Value.ToString();
+
+            bool isStartTrace = (classQueried == "Win32_ProcessStartTrace");
+            string exeName = (string)eventDetails.Properties["ProcessName"].Value;
+            UInt32 id = (uint)eventDetails.Properties["ProcessID"].Value;
+
+            ProcessStartStopEventArgs args = new ProcessStartStopEventArgs(isStartTrace, exeName, id);
+            OnProcessStartStop(args);
+        }
