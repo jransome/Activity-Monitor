@@ -7,7 +7,8 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="624">
     <Grid>
-        <DataGrid x:Name="ProcessDataGrid" Margin="10,10,90,10" Loaded="ProcessDataGrid_Loaded"/>
+        <DataGrid x:Name="ProcessDataGrid" Margin="10,10,90,10" ItemsSource="{Binding}"/>
+
         <Button x:Name="BtnRefresh" Content="Refresh" Margin="0,10,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="75" Click="BtnRefresh_Click"/>
     </Grid>
 </Window>

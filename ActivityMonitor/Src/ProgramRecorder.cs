@@ -5,6 +5,7 @@ using System.Linq;
 using System.Management;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Data;
 
 namespace ActivityMonitor
 {
@@ -20,7 +21,7 @@ namespace ActivityMonitor
         /// <summary>
         /// Constructor.
         /// </summary>
-        public ProgramRecorder()
+        private ProgramRecorder()
         {
             ProgramListener.Instance.ProcessWasStartedStopped += RecordProcessStartStop;
         }
@@ -31,7 +32,7 @@ namespace ActivityMonitor
         /// </summary>
         public void RecordRunningProgramSnapshot()
         {
-            lock (baton) // see above
+            lock (baton)
             {
                 Console.WriteLine("Recording snapshot");
                 ManagementObjectCollection runningPrograms = ProgramListener.Instance.GetRunningPrograms();
@@ -57,7 +58,7 @@ namespace ActivityMonitor
 
         private void RecordProcessStartStop(ProcessStartStopEventArgs processEventDetails)
         {
-            lock (baton) // see above
+            lock (baton)
             {
                 Console.WriteLine("Start/stop event occuring");
                 ManagementBaseObject processDetails = processEventDetails.WmiQueryEvent;
@@ -113,6 +114,7 @@ namespace ActivityMonitor
                         if (unsavedNewStartTraces.Exists(unst => unst.Equals(kvp)))
                         {
                             Console.WriteLine("PROGRAM RECORDER: END OF PROCESS FOR UNSAVED UNTRACKED EXE {0} DETECTED! (THIS IS OKAY)", GetExeName(processDetails));
+                            unsavedNewStartTraces.Remove(kvp);
                         }
                         else
                         {

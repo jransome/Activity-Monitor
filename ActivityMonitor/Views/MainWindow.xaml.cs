@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,27 +21,22 @@ namespace ActivityMonitor.Views
     /// </summary>
     public partial class MainWindow : Window
     {
-        //ProgramListener programListener = new ProgramListener();
 
         public MainWindow()
         {
             InitializeComponent();
-        }
-
-        private void ProcessDataGrid_Loaded(object sender, RoutedEventArgs e)
-        {
-            PopulateProcessDataGrid();
+            ProgramRecorder.Instance.RecordRunningProgramSnapshot();
+            ProcessDataGrid.DataContext = TrackedPrograms.Instance.Index;
         }
 
         private void BtnRefresh_Click(object sender, RoutedEventArgs e)
         {
             ProcessDataGrid.Items.Refresh();
-            //ProcessDataGrid.ItemsSource = MainController.Instance.GetStoredPrograms();
-        }
 
-        private void PopulateProcessDataGrid()
-        {
-            ProcessDataGrid.ItemsSource = MainController.Instance.ScrapeRunningPrograms();
+            foreach (var item in ProcessDataGrid.Items)
+            {
+                Console.WriteLine(item);
+            }
         }
     }
 }

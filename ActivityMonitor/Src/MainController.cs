@@ -21,16 +21,16 @@ namespace ActivityMonitor
             Application.Current.Exit += CloseAllSessions;
         }
 
-        public List<Program> ScrapeRunningPrograms()
-        {
-            ProgramRecorder.Instance.RecordRunningProgramSnapshot();
-            return GetStoredPrograms();
-        }
+        //public List<Program> ScrapeRunningPrograms()
+        //{
+        //    ProgramRecorder.Instance.RecordRunningProgramSnapshot();
+        //    return GetStoredPrograms();
+        //}
 
-        public List<Program> GetStoredPrograms()
-        {
-            return TrackedPrograms.Instance.Index;
-        }
+        //public List<Program> GetStoredPrograms()
+        //{
+        //    return TrackedPrograms.Instance.Index;
+        //}
 
         /// <summary>
         /// Called at startup to check all tracked programs for open sessions, which they shouldn't have, as

@@ -2,15 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics;
+using System.ComponentModel;
 
 namespace ActivityMonitor
 {
     /// <summary>
     /// Represents an executable that is monitored for activity
     /// </summary>
-    public class Program
+    public class Program : INotifyPropertyChanged
     {
         private List<ProgramSession> sessions = new List<ProgramSession>();
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public string ExeName { get; }
         public string Description { get; }
