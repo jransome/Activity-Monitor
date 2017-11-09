@@ -11,14 +11,36 @@ namespace ActivityMonitor
     /// </summary>
     public class Program : INotifyPropertyChanged
     {
-        private List<ProgramSession> sessions = new List<ProgramSession>();
 
+        /// <summary>
+        /// Implementing the INotifyPropertyChanged interface
+        /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged(string name)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(name));
+            }
+        }
 
         public string ExeName { get; }
         public string Description { get; }
         public string Path { get; }
-        public bool IsRunning { get; private set; }
+        private bool isRunning;
+        public bool IsRunning
+        {
+            get { return isRunning; }
+            private set
+            {
+                isRunning = value;
+                OnPropertyChanged("IsRunning");
+                OnPropertyChanged("Sessions");
+                OnPropertyChanged("TotalRunTime");
+                OnPropertyChanged("TotalSessions");
+            }
+        }
         public TimeSpan TotalRunTime
         {
             get
@@ -35,7 +57,10 @@ namespace ActivityMonitor
             }
         }
         public int TotalSessions { get { return sessions.Count; } }
-        public List<ProgramSession> Sessions { get { return sessions; } }
+
+        private List<ProgramSession> sessions = new List<ProgramSession>();
+        public List<ProgramSession> Sessions { get { return sessions; } set { sessions = value; } }
+
         /// <summary>
         /// Process Id associated with exe when it was found by the RecordRunningProgramSnapshot method
         /// Only purpose is to supply the recorder with an id to create a new session with without having to
